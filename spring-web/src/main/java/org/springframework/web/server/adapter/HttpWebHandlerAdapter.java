@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.observability.DefaultSignalListener;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
 import org.springframework.context.ApplicationContext;
@@ -298,8 +299,9 @@ public class HttpWebHandlerAdapter extends WebHandlerDecorator implements HttpHa
 				.doOnSuccess(aVoid -> logResponse(exchange))
 				.onErrorResume(ex -> handleUnresolvedError(exchange, observationContext, ex))
 				.tap(() -> new ObservationSignalListener(observationContext))
-				.then(exchange.cleanupMultipart())
-				.then(Mono.defer(response::setComplete));
+				.then(Mono.defer(response::setComplete))
+				.publishOn(Schedulers.boundedElastic())
+				.doFinally(fin -> exchange.cleanupMultipart().subscribe());
 	}
 
 	protected ServerWebExchange createExchange(ServerHttpRequest request, ServerHttpResponse response) {
