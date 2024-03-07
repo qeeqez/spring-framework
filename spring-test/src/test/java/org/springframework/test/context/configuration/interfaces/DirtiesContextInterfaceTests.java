@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.test.context.configuration.interfaces;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.experimental.runners.Enclosed;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ import static org.springframework.test.context.junit4.JUnitTestingUtils.runTests
  * @author Sam Brannen
  * @since 4.3
  */
+@RunWith(Enclosed.class)
 class DirtiesContextInterfaceTests {
 
 	private static final AtomicInteger cacheHits = new AtomicInteger();
