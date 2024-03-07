@@ -70,7 +70,7 @@ class RestClientIntegrationTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("clientHttpRequestFactories")
+	@MethodSource("org.springframework.web.client.RestClientIntegrationTests#clientHttpRequestFactories")
 	@interface ParameterizedRestClientTest {
 	}
 

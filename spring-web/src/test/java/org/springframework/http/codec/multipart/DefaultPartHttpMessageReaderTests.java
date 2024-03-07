@@ -431,7 +431,7 @@ class DefaultPartHttpMessageReaderTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("org.springframework.http.codec.multipart.DefaultPartHttpMessageReaderTests#messageReaders()")
+	@MethodSource("org.springframework.http.codec.multipart.DefaultPartHttpMessageReaderTests#messageReaders")
 	@interface ParameterizedDefaultPartHttpMessageReaderTest {
 	}
 

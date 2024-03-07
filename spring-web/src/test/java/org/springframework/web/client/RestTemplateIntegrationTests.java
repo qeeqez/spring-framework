@@ -86,7 +86,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("clientHttpRequestFactories")
+	@MethodSource("org.springframework.web.client.RestTemplateIntegrationTests#clientHttpRequestFactories")
 	@interface ParameterizedRestTemplateTest {
 	}
 

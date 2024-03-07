@@ -82,7 +82,7 @@ abstract class AbstractReactiveWebSocketIntegrationTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] client[{0}], server[{1}]")
-	@MethodSource("arguments")
+	@MethodSource("org.springframework.web.reactive.socket.AbstractReactiveWebSocketIntegrationTests#arguments")
 	@interface ParameterizedWebSocketTest {
 	}
 

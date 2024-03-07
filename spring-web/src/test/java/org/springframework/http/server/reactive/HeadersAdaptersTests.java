@@ -131,7 +131,7 @@ class HeadersAdaptersTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("headers")
+	@MethodSource("org.springframework.http.server.reactive.HeadersAdaptersTests#headers")
 	@interface ParameterizedHeadersTest {
 	}
 

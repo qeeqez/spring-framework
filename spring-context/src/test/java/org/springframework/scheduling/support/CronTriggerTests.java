@@ -869,7 +869,7 @@ class CronTriggerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] localDateTime[{0}], time zone[{1}]")
-	@MethodSource("parameters")
+	@MethodSource("org.springframework.scheduling.support.CronTriggerTests#parameters")
 	@interface ParameterizedCronTriggerTest {
 	}
 

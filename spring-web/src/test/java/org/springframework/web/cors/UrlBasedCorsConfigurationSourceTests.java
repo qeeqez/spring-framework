@@ -89,11 +89,10 @@ class UrlBasedCorsConfigurationSourceTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("pathPatternsArguments")
+	@MethodSource("org.springframework.web.cors.UrlBasedCorsConfigurationSourceTests#pathPatternsArguments")
 	private @interface PathPatternsParameterizedTest {
 	}
 
-	@SuppressWarnings("unused")
 	private static Stream<Named<Function<String, MockHttpServletRequest>>> pathPatternsArguments() {
 		return Stream.of(
 				named("ServletRequestPathUtils", requestUri -> {

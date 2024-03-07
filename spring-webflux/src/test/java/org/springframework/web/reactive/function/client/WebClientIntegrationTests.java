@@ -96,7 +96,7 @@ class WebClientIntegrationTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("arguments")
+	@MethodSource("org.springframework.web.reactive.function.client.WebClientIntegrationTests#arguments")
 	@interface ParameterizedWebClientTest {
 	}
 
