@@ -48,7 +48,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class MessageListenerContainerObservationTests {
 
 	@RegisterExtension
-	EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+	static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
 	TestObservationRegistry registry = TestObservationRegistry.create();
 
