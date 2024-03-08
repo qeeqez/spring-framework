@@ -108,6 +108,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
 	public static class AlwaysFailingAfterTestMethodSpringRuleTestCase extends BaseSpringRuleTestCase {
 	}
 
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	@Ignore("TestCase classes are run manually by the enclosing test class")
 	@RunWith(JUnit4.class)
 	@ContextConfiguration("../FailingBeforeAndAfterMethodsTests-context.xml")
@@ -131,6 +132,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
 		}
 	}
 
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	@Ignore("TestCase classes are run manually by the enclosing test class")
 	@RunWith(JUnit4.class)
 	@ContextConfiguration("../FailingBeforeAndAfterMethodsTests-context.xml")

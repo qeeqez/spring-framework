@@ -212,6 +212,7 @@ class FailingBeforeAndAfterMethodsSpringExtensionTests {
 	@FailingTestCase
 	@SpringJUnitConfig(DatabaseConfig.class)
 	@Transactional
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	static class FailingBeforeTransactionTestCase {
 
 		@Test
@@ -227,6 +228,7 @@ class FailingBeforeAndAfterMethodsSpringExtensionTests {
 	@FailingTestCase
 	@SpringJUnitConfig(DatabaseConfig.class)
 	@Transactional
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	static class FailingAfterTransactionTestCase {
 
 		@Test

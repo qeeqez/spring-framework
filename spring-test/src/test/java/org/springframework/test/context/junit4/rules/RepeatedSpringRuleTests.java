@@ -40,6 +40,7 @@ import org.springframework.test.context.junit4.RepeatedSpringRunnerTests;
  * @author Sam Brannen
  * @since 4.2
  */
+@SuppressWarnings("JUnitMalformedDeclaration")
 public class RepeatedSpringRuleTests extends RepeatedSpringRunnerTests {
 
 	@Parameters(name = "{0}")

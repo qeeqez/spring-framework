@@ -76,6 +76,7 @@ class DisabledIfAndDirtiesContextTests {
 	@SpringJUnitConfig(Config.class)
 	@DisabledIf(expression = "false", loadContext = true)
 	@DirtiesContext
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	static class EnabledAndDirtiesContextTestCase {
 
 		@Test
@@ -87,6 +88,7 @@ class DisabledIfAndDirtiesContextTests {
 	@SpringJUnitConfig(Config.class)
 	@DisabledIf(expression = "true", loadContext = true)
 	@DirtiesContext
+	@SuppressWarnings("JUnitMalformedDeclaration")
 	static class DisabledAndDirtiesContextTestCase {
 
 		@Test
