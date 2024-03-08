@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -68,8 +69,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class CrossOriginTests {
 
-	@SuppressWarnings("unused")
-	static Stream<TestRequestMappingInfoHandlerMapping> pathPatternsArguments() {
+	private static Stream<TestRequestMappingInfoHandlerMapping> pathPatternsArguments() {
 		StaticWebApplicationContext wac = new StaticWebApplicationContext();
 		Properties props = new Properties();
 		props.setProperty("myOrigin", "https://example.com");
@@ -89,6 +89,13 @@ class CrossOriginTests {
 		return Stream.of(mapping1, mapping2);
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.annotation.CrossOriginTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
 
 	private final MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -100,7 +107,7 @@ class CrossOriginTests {
 	}
 
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void noAnnotationWithoutOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/no");
@@ -108,7 +115,7 @@ class CrossOriginTests {
 		assertThat(getCorsConfiguration(chain, false)).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void noAnnotationWithAccessControlRequestMethod(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/no");
@@ -119,7 +126,7 @@ class CrossOriginTests {
 				.endsWith("RequestMappingInfoHandlerMapping$HttpOptionsHandler#handle()");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void noAnnotationWithPreflightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/no");
@@ -130,7 +137,7 @@ class CrossOriginTests {
 		assertThat(chain.getHandler().getClass().getName()).endsWith("AbstractHandlerMapping$PreFlightHandler");
 	}
 
-	@PathPatternsParameterizedTest  // SPR-12931
+	@PathPatternsParameterizedArgumentsTest  // SPR-12931
 	void noAnnotationWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/no");
@@ -138,7 +145,7 @@ class CrossOriginTests {
 		assertThat(getCorsConfiguration(chain, false)).isNull();
 	}
 
-	@PathPatternsParameterizedTest  // SPR-12931
+	@PathPatternsParameterizedArgumentsTest  // SPR-12931
 	void noAnnotationPostWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setMethod("POST");
@@ -147,7 +154,7 @@ class CrossOriginTests {
 		assertThat(getCorsConfiguration(chain, false)).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void defaultAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/default");
@@ -162,7 +169,7 @@ class CrossOriginTests {
 		assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(1800));
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customized(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/customized");
@@ -177,7 +184,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isFalse();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customOriginDefinedViaValueAttribute(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/customOrigin");
@@ -188,7 +195,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customOriginDefinedViaPlaceholder(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/someOrigin");
@@ -199,7 +206,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	public void customOriginPatternViaValueAttribute(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/customOriginPattern");
@@ -211,7 +218,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	public void customOriginPatternViaPlaceholder(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setRequestURI("/customOriginPatternPlaceholder");
@@ -223,7 +230,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void bogusAllowCredentialsValue(TestRequestMappingInfoHandlerMapping mapping) {
 		assertThatIllegalStateException()
 				.isThrownBy(() -> mapping.registerHandler(new MethodLevelControllerWithBogusAllowCredentialsValue()))
@@ -231,21 +238,21 @@ class CrossOriginTests {
 				.withMessageContaining("current value is [bogus]");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void allowCredentialsWithDefaultOrigin(TestRequestMappingInfoHandlerMapping mapping) {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> mapping.registerHandler(new CredentialsWithDefaultOriginController()))
 				.withMessageContaining("When allowCredentials is true, allowedOrigins cannot contain");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void allowCredentialsWithWildcardOrigin(TestRequestMappingInfoHandlerMapping mapping) {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> mapping.registerHandler(new CredentialsWithWildcardOriginController()))
 				.withMessageContaining("When allowCredentials is true, allowedOrigins cannot contain");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void classLevel(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new ClassLevelController());
 
@@ -275,7 +282,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isTrue();
 	}
 
-	@PathPatternsParameterizedTest // SPR-13468
+	@PathPatternsParameterizedArgumentsTest // SPR-13468
 	void classLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new ClassLevelMappingWithComposedAnnotation());
 
@@ -288,7 +295,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isTrue();
 	}
 
-	@PathPatternsParameterizedTest // SPR-13468
+	@PathPatternsParameterizedArgumentsTest // SPR-13468
 	void methodLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelMappingWithComposedAnnotation());
 
@@ -301,7 +308,7 @@ class CrossOriginTests {
 		assertThat(config.getAllowCredentials()).isTrue();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preFlightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setMethod("OPTIONS");
@@ -318,7 +325,7 @@ class CrossOriginTests {
 		assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(1800));
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void ambiguousHeaderPreFlightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setMethod("OPTIONS");
@@ -337,7 +344,7 @@ class CrossOriginTests {
 		assertThat(config.getMaxAge()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void ambiguousProducesPreFlightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MethodLevelController());
 		this.request.setMethod("OPTIONS");
@@ -355,14 +362,14 @@ class CrossOriginTests {
 		assertThat(config.getMaxAge()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preFlightRequestWithoutRequestMethodHeader(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/default");
 		request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 		assertThat(mapping.getHandler(request)).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void maxAgeWithDefaultOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
 		mapping.registerHandler(new MaxAgeWithDefaultOriginController());
 

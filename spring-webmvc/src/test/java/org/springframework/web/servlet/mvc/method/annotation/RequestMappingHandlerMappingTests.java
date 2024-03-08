@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.MediaType;
@@ -71,8 +72,7 @@ import static org.mockito.Mockito.mock;
  */
 class RequestMappingHandlerMappingTests {
 
-	@SuppressWarnings("unused")
-	static Stream<Arguments> pathPatternsArguments() {
+	private static Stream<Arguments> pathPatternsArguments() {
 		StaticWebApplicationContext wac1 = new StaticWebApplicationContext();
 		StaticWebApplicationContext wac2 = new StaticWebApplicationContext();
 
@@ -85,6 +85,14 @@ class RequestMappingHandlerMappingTests {
 
 		return Stream.of(Arguments.of(mapping1, wac1), Arguments.of(mapping2, wac2));
 	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMappingTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
 
 	@Test
 	void builderConfiguration() {
@@ -165,7 +173,7 @@ class RequestMappingHandlerMappingTests {
 				.isTrue();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void resolveEmbeddedValuesInPatterns(RequestMappingHandlerMapping mapping) {
 		mapping.setEmbeddedValueResolver(value -> "/${pattern}/bar".equals(value) ? "/foo/bar" : value);
 
@@ -175,7 +183,7 @@ class RequestMappingHandlerMappingTests {
 		assertThat(result).containsExactly("/foo", "/foo/bar");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void pathPrefix(RequestMappingHandlerMapping mapping) throws Exception {
 		mapping.setEmbeddedValueResolver(value -> "/${prefix}".equals(value) ? "/api" : value);
 		mapping.setPathPrefixes(Collections.singletonMap(
@@ -189,7 +197,7 @@ class RequestMappingHandlerMappingTests {
 		assertThat(info.getPatternValues()).containsOnly("/api/user/{id}");
 	}
 
-	@PathPatternsParameterizedTest // gh-23907
+	@PathPatternsParameterizedArgumentsTest // gh-23907
 	void pathPrefixPreservesPathMatchingSettings(RequestMappingHandlerMapping mapping) throws Exception {
 		mapping.setPathPrefixes(Collections.singletonMap("/api", HandlerTypePredicate.forAnyHandlerType()));
 		mapping.afterPropertiesSet();
@@ -219,7 +227,7 @@ class RequestMappingHandlerMappingTests {
 		}
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void resolveRequestMappingViaComposedAnnotation(RequestMappingHandlerMapping mapping) {
 		RequestMappingInfo info = assertComposedAnnotationMapping(
 				mapping, "postJson", "/postJson", RequestMethod.POST);
@@ -239,7 +247,7 @@ class RequestMappingHandlerMappingTests {
 		assertThat(condition.getConsumableMediaTypes()).containsOnly(MediaType.APPLICATION_XML);
 	}
 
-	@PathPatternsParameterizedTest // gh-22010
+	@PathPatternsParameterizedArgumentsTest
 	void consumesWithOptionalRequestBody(RequestMappingHandlerMapping mapping, StaticWebApplicationContext wac) {
 		wac.registerSingleton("testController", ComposedAnnotationController.class);
 		wac.refresh();

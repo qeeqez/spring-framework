@@ -59,6 +59,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.aop.interceptor.SimpleTraceInterceptor;
@@ -172,11 +173,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandlerMethodTests {
 
-	static Stream<Boolean> pathPatternsArguments() {
+	private static Stream<Boolean> pathPatternsArguments() {
 		return Stream.of(true, false);
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.annotation.ServletAnnotationControllerHandlerMethodTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void emptyValueMapping(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ControllerWithEmptyValueMapping.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -205,7 +214,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void errorThrownFromHandlerMethod(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ControllerWithErrorThrown.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -225,7 +234,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("test");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customAnnotationController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(CustomAnnotationController.class, usePathPatterns);
 
@@ -235,7 +244,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpServletResponse.SC_OK);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requiredParamMissing(boolean usePathPatterns) throws Exception {
 		WebApplicationContext webAppContext = initDispatcherServlet(RequiredParamController.class, usePathPatterns);
 
@@ -246,7 +255,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(webAppContext.isSingleton(RequiredParamController.class.getSimpleName())).isTrue();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void typeConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequiredParamController.class, usePathPatterns);
 
@@ -257,7 +266,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void optionalParamPresent(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(OptionalParamController.class, usePathPatterns);
 
@@ -270,7 +279,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("val-true-otherVal");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void optionalParamMissing(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(OptionalParamController.class, usePathPatterns);
 
@@ -280,7 +289,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("null-false-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void defaultParameters(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DefaultValueParamController.class, usePathPatterns);
 
@@ -290,7 +299,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("foo--bar");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void defaultExpressionParameters(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DefaultExpressionValueParamController.class, usePathPatterns, wac -> {
 			RootBeanDefinition ppc = new RootBeanDefinition(PropertySourcesPlaceholderConfigurer.class);
@@ -311,7 +320,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("foo-bar-/myApp");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void typeNestedSetBinding(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedSetController.class, usePathPatterns, wac -> {
 			RootBeanDefinition csDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
@@ -330,7 +339,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("[1, 2]-org.springframework.beans.testfixture.beans.TestBean");
 	}
 
-	@PathPatternsParameterizedTest // SPR-12903
+	@PathPatternsParameterizedArgumentsTest // SPR-12903
 	void pathVariableWithCustomConverter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(PathVariableWithCustomConverterController.class, usePathPatterns, wac -> {
 			RootBeanDefinition csDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
@@ -348,7 +357,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(404);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void methodNotAllowed(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MethodNotAllowedController.class, usePathPatterns);
 
@@ -368,7 +377,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(allowedMethods).as("POST not allowed").contains("POST");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void emptyParameterListHandleMethod(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(EmptyParameterListHandlerMethodController.class, usePathPatterns, wac -> {
 			RootBeanDefinition vrDef = new RootBeanDefinition(InternalResourceViewResolver.class);
@@ -386,7 +395,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void sessionAttributeExposure(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				MySessionAttributesController.class, usePathPatterns,
@@ -416,7 +425,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void sessionAttributeExposureWithInterface(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MySessionAttributesControllerImpl.class, usePathPatterns, wac -> {
 			wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class));
@@ -449,7 +458,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void parameterizedAnnotatedInterface(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				MyParameterizedControllerImpl.class, usePathPatterns,
@@ -481,7 +490,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void parameterizedAnnotatedInterfaceWithOverriddenMappingsInImpl(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				MyParameterizedControllerImplWithOverriddenMappings.class, usePathPatterns,
@@ -512,7 +521,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void adaptedHandleMethods(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyAdaptedController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -524,12 +533,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		doTestAdaptedHandleMethods(usePathPatterns);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void adaptedHandleMethods2(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyAdaptedController2.class, usePathPatterns);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void adaptedHandleMethods3(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyAdaptedController3.class, usePathPatterns);
 		doTestAdaptedHandleMethods(usePathPatterns);
@@ -576,7 +585,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("test-name1-typeMismatch");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void formController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				MyFormController.class, usePathPatterns,
@@ -591,7 +600,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-name1-typeMismatch-tb1-myValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void modelFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				MyModelFormController.class, usePathPatterns,
@@ -606,7 +615,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myPath-name1-typeMismatch-tb1-myValue-yourValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void lateBindingFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(
 				LateBindingFormController.class, usePathPatterns,
@@ -621,7 +630,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-name1-typeMismatch-tb1-myValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void proxiedFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyFormController.class, usePathPatterns, wac -> {
 			wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class));
@@ -639,7 +648,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-name1-typeMismatch-tb1-myValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void commandProvidingFormControllerWithCustomEditor(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyCommandProvidingFormController.class, usePathPatterns, wac -> {
 			wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class));
@@ -657,7 +666,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-String:myDefaultName-typeMismatch-tb1-myOriginalValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void typedCommandProvidingFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyTypedCommandProvidingFormController.class, usePathPatterns, wac -> {
 			wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class));
@@ -694,7 +703,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-special-99-special-99");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void binderInitializingCommandProvidingFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyBinderInitializingCommandProvidingFormController.class, usePathPatterns, wac -> wac.registerBeanDefinition("viewResolver",
 				new RootBeanDefinition(TestViewResolver.class))
@@ -709,7 +718,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-String:myDefaultName-typeMismatch-tb1-myOriginalValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void specificBinderInitializingCommandProvidingFormController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MySpecificBinderInitializingCommandProvidingFormController.class, usePathPatterns, wac -> wac.registerBeanDefinition("viewResolver",
 				new RootBeanDefinition(TestViewResolver.class))
@@ -724,7 +733,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView-String:myDefaultName-typeMismatch-tb1-myOriginalValue");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void parameterDispatchingController(boolean usePathPatterns) throws Exception {
 		final MockServletContext servletContext = new MockServletContext();
 		final MockServletConfig servletConfig = new MockServletConfig(servletContext);
@@ -785,7 +794,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(deserialized.session).isNotNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void relativePathDispatchingController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyRelativePathDispatchingController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -816,7 +825,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo(!usePathPatterns ? "mySurpriseView" : "myView");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void relativeMethodPathDispatchingController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyRelativeMethodPathDispatchingController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -856,7 +865,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		}
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nullCommandController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyNullCommandController.class, usePathPatterns);
 		getServlet().init(new MockServletConfig());
@@ -868,7 +877,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myView");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void equivalentMappingsWithSameMethodName(boolean usePathPatterns) {
 		assertThatThrownBy(() -> initDispatcherServlet(ChildController.class, usePathPatterns))
 			.isInstanceOf(BeanCreationException.class)
@@ -876,7 +885,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 			.hasMessageContaining("Ambiguous mapping");
 	}
 
-	@PathPatternsParameterizedTest // gh-22543
+	@PathPatternsParameterizedArgumentsTest // gh-22543
 	void unmappedPathMapping(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(UnmappedPathController.class, usePathPatterns);
 
@@ -892,7 +901,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("get");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void explicitAndEmptyPathsControllerMapping(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ExplicitAndEmptyPathsController.class, usePathPatterns);
 
@@ -907,7 +916,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("get");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void pathOrdering(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(PathOrderingController.class, usePathPatterns);
 
@@ -917,7 +926,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("method1");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestBodyResponseBody(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns);
 
@@ -932,7 +941,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo(requestBody);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void httpPatch(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns);
 
@@ -947,7 +956,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo(requestBody);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyNoAcceptableMediaType(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyProducesController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -966,7 +975,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(406);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyWildCardMediaType(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns);
 
@@ -980,7 +989,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo(requestBody);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void unsupportedRequestBody(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1000,7 +1009,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getHeader("Accept")).isEqualTo("text/plain");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void unsupportedPatchBody(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1020,7 +1029,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getHeader("Accept-Patch")).isEqualTo("text/plain");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyNoAcceptHeader(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns);
 
@@ -1034,7 +1043,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo(requestBody);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void badRequestRequestBody(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1051,7 +1060,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void httpEntity(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseEntityController.class, usePathPatterns);
 
@@ -1074,7 +1083,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(404);
 	}
 
-	@PathPatternsParameterizedTest // SPR-16172
+	@PathPatternsParameterizedArgumentsTest // SPR-16172
 	void httpEntityWithContentType(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseEntityController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1095,7 +1104,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 						"<testEntity><name>Foo Bar</name></testEntity>");
 	}
 
-	@PathPatternsParameterizedTest  // SPR-6877
+	@PathPatternsParameterizedArgumentsTest  // SPR-6877
 	void overlappingMessageConvertersRequestBody(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestResponseBodyController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1116,7 +1125,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getHeader("Content-Type")).as("Invalid content-type").isEqualTo("application/json");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyVoid(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseBodyVoidController.class, usePathPatterns);
 
@@ -1127,7 +1136,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyArgMismatch(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestBodyArgMismatchController.class, usePathPatterns, wac -> {
 			Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
@@ -1155,7 +1164,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void contentTypeHeaders(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ContentTypeHeadersController.class, usePathPatterns);
 
@@ -1178,7 +1187,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(415);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void consumes(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ConsumesController.class, usePathPatterns);
 
@@ -1201,7 +1210,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(415);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void negatedContentTypeHeaders(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NegatedContentTypeHeadersController.class, usePathPatterns);
 
@@ -1218,7 +1227,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("non-pdf");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void acceptHeaders(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(AcceptHeadersController.class, usePathPatterns);
 
@@ -1253,7 +1262,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(406);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void produces(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ProducesController.class, usePathPatterns, wac -> {
 			List<HttpMessageConverter<?>> converters = new ArrayList<>();
@@ -1312,7 +1321,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("{\"reason\":\"error\"}");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseStatus(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseStatusController.class, usePathPatterns);
 
@@ -1324,7 +1333,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getErrorMessage()).isEqualTo("It's alive!");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void mavResolver(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ModelAndViewResolverController.class, usePathPatterns, wac -> {
 			RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
@@ -1340,7 +1349,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void bindingCookieValue(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(BindingCookieValueController.class, usePathPatterns);
 
@@ -1351,7 +1360,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("test-2008");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void ambiguousParams(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(AmbiguousParamsController.class, usePathPatterns);
 
@@ -1367,7 +1376,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("myParam-42");
 	}
 
-	@PathPatternsParameterizedTest  // SPR-9062
+	@PathPatternsParameterizedArgumentsTest  // SPR-9062
 	void ambiguousPathAndRequestMethod(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(AmbiguousPathAndRequestMethodController.class, usePathPatterns);
 
@@ -1378,7 +1387,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Pattern");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void bridgeMethods(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TestControllerImpl.class, usePathPatterns);
 
@@ -1387,7 +1396,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		getServlet().service(request, response);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void bridgeMethodsWithMultipleInterfaces(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ArticleController.class, usePathPatterns);
 
@@ -1396,7 +1405,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		getServlet().service(request, response);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestParamMap(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestParamMapController.class, usePathPatterns);
 
@@ -1415,7 +1424,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("key1=[value1],key2=[value21,value22]");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestHeaderMap(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RequestHeaderMapController.class, usePathPatterns);
 
@@ -1444,7 +1453,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	}
 
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestMappingInterface(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(IMyControllerImpl.class, usePathPatterns);
 
@@ -1460,7 +1469,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("handle value");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestMappingInterfaceWithProxy(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(IMyControllerImpl.class, usePathPatterns, wac -> {
 			DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
@@ -1481,7 +1490,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("handle value");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void requestMappingBaseClass(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MyAbstractControllerImpl.class, usePathPatterns);
 
@@ -1492,7 +1501,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void trailingSlash(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TrailingSlashController.class, usePathPatterns);
 
@@ -1505,7 +1514,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 	/*
 	 * See SPR-6021
 	 */
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customMapEditor(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(CustomMapEditorController.class, usePathPatterns);
 
@@ -1518,7 +1527,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("test-{foo=bar}");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void multipartFileAsSingleString(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1530,7 +1539,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void regularParameterAsSingleString(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1543,7 +1552,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void multipartFileAsStringArray(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1555,7 +1564,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void regularParameterAsStringArray(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1568,7 +1577,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void multipartFilesAsStringArray(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1581,7 +1590,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen-Eva");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void regularParametersAsStringArray(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartController.class, usePathPatterns);
 
@@ -1595,7 +1604,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Juergen-Eva");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void parameterCsvAsStringArray(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(CsvController.class, usePathPatterns, wac -> {
 			RootBeanDefinition csDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
@@ -1615,7 +1624,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1-2");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void testMatchWithoutMethodLevelPath(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NoPathGetAndM2PostController.class, usePathPatterns);
 
@@ -1625,7 +1634,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getStatus()).isEqualTo(405);
 	}
 
-	@PathPatternsParameterizedTest  // SPR-8536
+	@PathPatternsParameterizedArgumentsTest  // SPR-8536
 	void testHeadersCondition(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(HeadersConditionController.class, usePathPatterns);
 
@@ -1657,7 +1666,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("homeJson");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void redirectAttribute(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RedirectAttributesController.class, usePathPatterns);
 
@@ -1696,7 +1705,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat((Map<?, ?>) RequestContextUtils.getOutputFlashMap(request)).isEmpty();
 	}
 
-	@PathPatternsParameterizedTest  // SPR-15176
+	@PathPatternsParameterizedArgumentsTest  // SPR-15176
 	void flashAttributesWithResponseEntity(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RedirectAttributesController.class, usePathPatterns);
 
@@ -1722,7 +1731,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat((Map<?, ?>) RequestContextUtils.getOutputFlashMap(request)).isEmpty();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void prototypeController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(null, usePathPatterns, wac -> {
 			RootBeanDefinition beanDef = new RootBeanDefinition(PrototypeController.class);
@@ -1743,7 +1752,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("count:3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void restController(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ThisWillActuallyRun.class, usePathPatterns);
 
@@ -1753,7 +1762,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("Hello World!");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseAsHttpHeaders(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(HttpHeadersResponseController.class, usePathPatterns);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -1765,7 +1774,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentLength()).as("Expected an empty content").isEqualTo(0);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseAsHttpHeadersNoHeader(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(HttpHeadersResponseController.class, usePathPatterns);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -1776,7 +1785,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentLength()).as("Expected an empty content").isEqualTo(0);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	@SuppressWarnings("deprecation")
 	void responseBodyAsHtml(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TextRestController.class, usePathPatterns, wac -> {
@@ -1816,7 +1825,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		}
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	@SuppressWarnings("deprecation")
 	void responseBodyAsHtmlWithSuffixPresent(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TextRestController.class, usePathPatterns, wac -> {
@@ -1841,7 +1850,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsByteArray()).isEqualTo(content);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyAsHtmlWithProducesCondition(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TextRestController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -1878,7 +1887,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		}
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void responseBodyAsTextWithCssExtension(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(TextRestController.class, usePathPatterns, wac -> {
 			ContentNegotiationManagerFactoryBean factoryBean = new ContentNegotiationManagerFactoryBean();
@@ -1909,7 +1918,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsByteArray()).isEqualTo(content);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void modelAndViewWithStatus(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ModelAndViewController.class, usePathPatterns);
 
@@ -1921,7 +1930,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getForwardedUrl()).isEqualTo("view");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void modelAndViewWithStatusForRedirect(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ModelAndViewController.class, usePathPatterns);
 
@@ -1933,7 +1942,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getRedirectedUrl()).isEqualTo("/path");
 	}
 
-	@PathPatternsParameterizedTest // SPR-14796
+	@PathPatternsParameterizedArgumentsTest // SPR-14796
 	void modelAndViewWithStatusInExceptionHandler(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ModelAndViewController.class, usePathPatterns);
 
@@ -1945,7 +1954,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getForwardedUrl()).isEqualTo("view");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void httpHead(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseEntityController.class, usePathPatterns);
 
@@ -1969,7 +1978,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("body");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void httpHeadExplicit(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseEntityController.class, usePathPatterns);
 
@@ -1981,7 +1990,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getHeader("h1")).isEqualTo("v1");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void httpOptions(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ResponseEntityController.class, usePathPatterns);
 
@@ -1994,7 +2003,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsByteArray().length).isEqualTo(0);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBinding(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2006,7 +2015,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithPathVariable(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(PathVariableDataClassController.class, usePathPatterns);
 
@@ -2017,7 +2026,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithMultipartFile(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipartFileDataClassController.class, usePathPatterns);
 
@@ -2030,7 +2039,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithServletPart(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ServletPartDataClassController.class, usePathPatterns);
 
@@ -2043,7 +2052,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithAdditionalSetter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2056,7 +2065,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithAdditionalSetterInDeclarativeBindingMode(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns, wac -> {
 			ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
@@ -2076,7 +2085,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithResult(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2089,7 +2098,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithOptionalParameter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2102,7 +2111,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-8");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithMissingParameter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2113,7 +2122,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:value1-null-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2125,7 +2134,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:value1-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithValidationError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2137,7 +2146,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithValidationErrorAndConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ValidatedDataClassController.class, usePathPatterns);
 
@@ -2148,7 +2157,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("2:null-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithNullable(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NullableDataClassController.class, usePathPatterns);
 
@@ -2161,7 +2170,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithNullableAndConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NullableDataClassController.class, usePathPatterns);
 
@@ -2173,7 +2182,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithOptional(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(OptionalDataClassController.class, usePathPatterns);
 
@@ -2186,7 +2195,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithOptionalAndConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(OptionalDataClassController.class, usePathPatterns);
 
@@ -2198,7 +2207,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithFieldMarker(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2211,7 +2220,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithFieldMarkerFallback(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2223,7 +2232,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-false-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithFieldDefault(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2236,7 +2245,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithFieldDefaultFallback(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataClassController.class, usePathPatterns);
 
@@ -2248,7 +2257,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-false-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataClassBindingWithLocalDate(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DateClassController.class, usePathPatterns);
 
@@ -2259,7 +2268,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("2010-01-01");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void dataRecordBinding(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(DataRecordController.class, usePathPatterns);
 
@@ -2272,7 +2281,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBinding(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedDataClassController.class, usePathPatterns);
 
@@ -2285,7 +2294,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithAdditionalSetter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedDataClassController.class, usePathPatterns);
 
@@ -2299,7 +2308,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-3");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithOptionalParameter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedValidatedDataClassController.class, usePathPatterns);
 
@@ -2313,7 +2322,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-8");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithMissingParameter(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedValidatedDataClassController.class, usePathPatterns);
 
@@ -2325,7 +2334,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:value1-nestedValue1-null-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedValidatedDataClassController.class, usePathPatterns);
 
@@ -2338,7 +2347,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:value1-nestedValue1-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithValidationError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedValidatedDataClassController.class, usePathPatterns);
 
@@ -2351,7 +2360,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("1:value1--true-0");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithValidationErrorAndConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedValidatedDataClassController.class, usePathPatterns);
 
@@ -2363,7 +2372,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 		assertThat(response.getContentAsString()).isEqualTo("2:value1-null-x-null");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void nestedDataClassBindingWithDataAndLocalDate(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(NestedDataAndDateClassController.class, usePathPatterns);
 

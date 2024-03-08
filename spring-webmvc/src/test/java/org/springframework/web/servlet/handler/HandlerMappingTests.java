@@ -16,12 +16,17 @@
 
 package org.springframework.web.servlet.handler;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.web.context.support.StaticWebApplicationContext;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -40,13 +45,19 @@ import static org.mockito.Mockito.mock;
  */
 class HandlerMappingTests {
 
-	@SuppressWarnings("unused")
 	private static Stream<Arguments> pathPatternsArguments() {
 		return PathPatternsTestUtils.requestArguments().map(function -> arguments(function, new TestHandlerMapping()));
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.handler.HandlerMappingTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void orderedInterceptors(Function<String, MockHttpServletRequest> requestFactory, TestHandlerMapping mapping) throws Exception {
 		MappedInterceptor i1 = new MappedInterceptor(new String[] {"/**"}, mock(HandlerInterceptor.class));
 		HandlerInterceptor i2 = mock();

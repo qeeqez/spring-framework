@@ -16,12 +16,17 @@
 
 package org.springframework.web.servlet.mvc;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.web.servlet.handler.PathPatternsParameterizedTest;
 import org.springframework.web.servlet.handler.PathPatternsTestUtils;
@@ -47,13 +52,19 @@ class WebContentInterceptorTests {
 	private final Object handler = new Object();
 
 
-	@SuppressWarnings("unused")
 	private static Stream<Named<Function<String, MockHttpServletRequest>>> pathPatternsArguments() {
 		return PathPatternsTestUtils.requestArguments();
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.WebContentInterceptorTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void cacheResourcesConfiguration(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		interceptor.setCacheSeconds(10);
 		interceptor.preHandle(requestFactory.apply("/"), response, handler);
@@ -62,7 +73,7 @@ class WebContentInterceptorTests {
 		assertThat(cacheControlHeaders).contains("max-age=10");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void mappedCacheConfigurationOverridesGlobal(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		Properties mappings = new Properties();
 		mappings.setProperty("/*/*handle.vm", "-1");
@@ -83,7 +94,7 @@ class WebContentInterceptorTests {
 		assertThat(cacheControlHeaders).contains("max-age=10");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preventCacheConfiguration(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		interceptor.setCacheSeconds(0);
 		interceptor.preHandle(requestFactory.apply("/"), response, handler);
@@ -92,7 +103,7 @@ class WebContentInterceptorTests {
 		assertThat(cacheControlHeaders).contains("no-store");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void emptyCacheConfiguration(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		interceptor.setCacheSeconds(-1);
 		interceptor.preHandle(requestFactory.apply("/"), response, handler);
@@ -103,7 +114,7 @@ class WebContentInterceptorTests {
 		assertThat(cacheControlHeaders).isEmpty();
 	}
 
-	@PathPatternsParameterizedTest // SPR-13252, SPR-14053
+	@PathPatternsParameterizedArgumentsTest // SPR-13252, SPR-14053
 	void cachingConfigAndPragmaHeader(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
@@ -116,7 +127,7 @@ class WebContentInterceptorTests {
 	}
 
 	@SuppressWarnings("deprecation")
-	@PathPatternsParameterizedTest // SPR-13252, SPR-14053
+	@PathPatternsParameterizedArgumentsTest // SPR-13252, SPR-14053
 	void http10CachingConfigAndPragmaHeader(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Expires", "0");
@@ -130,7 +141,7 @@ class WebContentInterceptorTests {
 	}
 
 	@SuppressWarnings("deprecation")
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void http10CachingConfigAndSpecificMapping(Function<String, MockHttpServletRequest> requestFactory) throws Exception {
 		interceptor.setCacheSeconds(0);
 		interceptor.setUseExpiresHeader(true);

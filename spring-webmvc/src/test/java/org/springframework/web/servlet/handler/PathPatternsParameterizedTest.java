@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
@@ -29,14 +30,18 @@ import org.junit.jupiter.params.provider.MethodSource;
  * {@link org.springframework.web.util.pattern.PathPatternParser} or
  * {@link org.springframework.util.PathMatcher} for URL pattern matching.
  *
+ * <p><b>Usage:</b> You need to create own annotation with arguments provided
+ * by annotation of type {@link ArgumentsSource}
+ * (for example {@link MethodSource})
+ * <p><b>Note:</b> Do not auto-close arguments since {@code ConfigurableWebApplicationContext} implements
+ * {@code AutoCloseable} and is shared between parameterized test invocations.
+ *
  * @author Rossen Stoyanchev
  * @since 5.3
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-// Do not auto-close arguments since ConfigurableWebApplicationContext implements
-// AutoCloseable and is shared between parameterized test invocations.
+@Target(ElementType.ANNOTATION_TYPE)
+//
 @ParameterizedTest(name = "[{index}] {0}", autoCloseArguments = false)
-@MethodSource("pathPatternsArguments")
 public @interface PathPatternsParameterizedTest {
 }

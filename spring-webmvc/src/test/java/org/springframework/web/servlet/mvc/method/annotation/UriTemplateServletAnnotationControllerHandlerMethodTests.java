@@ -18,6 +18,10 @@ package org.springframework.web.servlet.mvc.method.annotation;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -29,6 +33,7 @@ import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -56,13 +61,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractServletHandlerMethodTests {
 
-	@SuppressWarnings("unused")
-	static Stream<Boolean> pathPatternsArguments() {
+	private static Stream<Boolean> pathPatternsArguments() {
 		return Stream.of(true, false);
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.annotation.UriTemplateServletAnnotationControllerHandlerMethodTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void simple(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(SimpleUriTemplateController.class, usePathPatterns);
 
@@ -72,7 +83,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test-42-7");
 	}
 
-	@PathPatternsParameterizedTest // gh-25864
+	@PathPatternsParameterizedArgumentsTest // gh-25864
 	void literalMappingWithPathParams(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipleUriTemplateController.class, usePathPatterns);
 
@@ -96,7 +107,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void multiple(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultipleUriTemplateController.class, usePathPatterns);
 
@@ -107,7 +118,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test-42-q24-21-other-q12");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void pathVarsInModel(boolean usePathPatterns) throws Exception {
 		final Map<String, Object> pathVars = new HashMap<>();
 		pathVars.put("hotel", "42");
@@ -127,7 +138,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(resolver.validatedAttrCount).isEqualTo(3);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void binding(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(BindingUriTemplateController.class, usePathPatterns);
 
@@ -148,7 +159,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getStatus()).isEqualTo(500);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void ambiguous(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(AmbiguousUriTemplateController.class, usePathPatterns);
 
@@ -158,7 +169,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("specific");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void relative(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(RelativePathUriTemplateController.class, usePathPatterns);
 
@@ -168,7 +179,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test-42-21");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void extension(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(SimpleUriTemplateController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -186,7 +197,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 				.isEqualTo(!usePathPatterns ? "test-42-24" : "test-42-24.xml");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void typeConversionError(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(SimpleUriTemplateController.class, usePathPatterns);
 
@@ -196,7 +207,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void explicitSubPath(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ExplicitSubPathController.class, usePathPatterns);
 
@@ -206,7 +217,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test-42");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void implicitSubPath(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(ImplicitSubPathController.class, usePathPatterns);
 
@@ -216,7 +227,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("test-42");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void crud(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(CrudController.class, usePathPatterns);
 
@@ -246,7 +257,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("remove-42");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void methodNotSupported(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MethodNotAllowedController.class, usePathPatterns);
 
@@ -271,7 +282,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getStatus()).isEqualTo(405);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void multiPaths(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MultiPathController.class, usePathPatterns);
 
@@ -281,7 +292,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("handle4-page-5");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void customRegex(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(CustomRegexController.class, usePathPatterns);
 
@@ -293,7 +304,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 				.isEqualTo(!usePathPatterns ? "test-42-;q=1;q=2-[1, 2]" : "test-42--[1, 2]");
 	}
 
-	@PathPatternsParameterizedTest // gh-11306
+	@PathPatternsParameterizedArgumentsTest // gh-11306
 	void menuTree(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(MenuTreeController.class, usePathPatterns);
 
@@ -303,7 +314,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("M5");
 	}
 
-	@PathPatternsParameterizedTest // gh-11542
+	@PathPatternsParameterizedArgumentsTest // gh-11542
 	void variableNames(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(VariableNamesController.class, usePathPatterns);
 
@@ -318,7 +329,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo("bar-bar");
 	}
 
-	@PathPatternsParameterizedTest // gh-13187
+	@PathPatternsParameterizedArgumentsTest // gh-13187
 	void variableNamesWithUrlExtension(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(VariableNamesController.class, usePathPatterns, wac -> {
 			if (!usePathPatterns) {
@@ -334,7 +345,7 @@ class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractS
 		assertThat(response.getContentAsString()).isEqualTo(!usePathPatterns ? "foo-foo" : "foo-foo.json");
 	}
 
-	@PathPatternsParameterizedTest // gh-11643
+	@PathPatternsParameterizedArgumentsTest // gh-11643
 	void doIt(boolean usePathPatterns) throws Exception {
 		initDispatcherServlet(Spr6978Controller.class, usePathPatterns);
 

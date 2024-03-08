@@ -16,11 +16,16 @@
 
 package org.springframework.web.servlet.handler;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -49,13 +54,19 @@ import static org.mockito.Mockito.mock;
  */
 class CorsAbstractHandlerMappingTests {
 
-	@SuppressWarnings("unused")
 	private static Stream<TestHandlerMapping> pathPatternsArguments() {
 		return Stream.of(new TestHandlerMapping(new PathPatternParser()), new TestHandlerMapping());
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.handler.CorsAbstractHandlerMappingTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void actualRequestWithoutCorsConfig(TestHandlerMapping mapping) throws Exception {
 
 		HandlerExecutionChain chain = mapping.getHandler(getCorsRequest("/foo"));
@@ -65,7 +76,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.hasSavedCorsConfig()).isFalse();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preflightRequestWithoutCorsConfig(TestHandlerMapping mapping) throws Exception {
 
 		HandlerExecutionChain chain = mapping.getHandler(getPreFlightRequest("/foo"));
@@ -76,7 +87,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.hasSavedCorsConfig()).isFalse();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void actualRequestWithCorsConfigProvider(TestHandlerMapping mapping) throws Exception {
 
 		HandlerExecutionChain chain = mapping.getHandler(getCorsRequest("/cors"));
@@ -86,7 +97,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOrigins()).containsExactly("*");
 	}
 
-	@PathPatternsParameterizedTest // see gh-23843
+	@PathPatternsParameterizedArgumentsTest // see gh-23843
 	void actualRequestWithCorsConfigProviderForHandlerChain(TestHandlerMapping mapping) throws Exception {
 
 		HandlerExecutionChain chain = mapping.getHandler(getCorsRequest("/chain"));
@@ -96,7 +107,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOrigins()).containsExactly("*");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preflightRequestWithCorsConfigProvider(TestHandlerMapping mapping) throws Exception {
 
 		HandlerExecutionChain chain = mapping.getHandler(getPreFlightRequest("/cors"));
@@ -107,7 +118,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOrigins()).containsExactly("*");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void actualRequestWithMappedCorsConfig(TestHandlerMapping mapping) throws Exception {
 
 		CorsConfiguration config = new CorsConfiguration();
@@ -121,7 +132,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOrigins()).containsExactly("*");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void actualRequestWithMappedPatternCorsConfiguration(TestHandlerMapping mapping) throws Exception {
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOriginPattern("http://*.domain2.com");
@@ -134,7 +145,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOriginPatterns()).containsExactly("http://*.domain2.com");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preflightRequestWithMappedCorsConfig(TestHandlerMapping mapping) throws Exception {
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOrigin("*");
@@ -148,7 +159,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(mapping.getRequiredCorsConfig().getAllowedOrigins()).containsExactly("*");
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void actualRequestWithCorsConfigSource(TestHandlerMapping mapping) throws Exception {
 
 		mapping.setCorsConfigurationSource(new CustomCorsConfigurationSource());
@@ -164,7 +175,7 @@ class CorsAbstractHandlerMappingTests {
 		assertThat(config.getAllowCredentials()).isTrue();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void preflightRequestWithCorsConfigSource(TestHandlerMapping mapping) throws Exception {
 
 		mapping.setCorsConfigurationSource(new CustomCorsConfigurationSource());

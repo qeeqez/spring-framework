@@ -16,9 +16,14 @@
 
 package org.springframework.web.servlet.handler;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
@@ -38,8 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PathMatchingUrlHandlerMappingTests {
 
-	@SuppressWarnings("unused")
-	static Stream<?> pathPatternsArguments() {
+	private static Stream<Arguments> pathPatternsArguments() {
 		String location = "/org/springframework/web/servlet/handler/map3.xml";
 		WebApplicationContext wac = initConfig(location);
 
@@ -61,8 +65,15 @@ class PathMatchingUrlHandlerMappingTests {
 		return context;
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.handler.PathMatchingUrlHandlerMappingTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void requestsWithHandlers(HandlerMapping mapping, WebApplicationContext wac) throws Exception {
 		Object bean = wac.getBean("mainController");
 
@@ -79,7 +90,7 @@ class PathMatchingUrlHandlerMappingTests {
 		assertThat(hec.getHandler()).isSameAs(bean);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void actualPathMatching(SimpleUrlHandlerMapping mapping, WebApplicationContext wac) throws Exception {
 		// there a couple of mappings defined with which we can test the
 		// path matching, let's do that...
@@ -248,7 +259,7 @@ class PathMatchingUrlHandlerMappingTests {
 		}
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void defaultMapping(HandlerMapping mapping, WebApplicationContext wac) throws Exception {
 		Object bean = wac.getBean("starController");
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", "/goggog.html");
@@ -256,7 +267,7 @@ class PathMatchingUrlHandlerMappingTests {
 		assertThat(hec.getHandler()).isSameAs(bean);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void mappingExposedInRequest(HandlerMapping mapping, WebApplicationContext wac) throws Exception {
 		Object bean = wac.getBean("mainController");
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", "/show.html");

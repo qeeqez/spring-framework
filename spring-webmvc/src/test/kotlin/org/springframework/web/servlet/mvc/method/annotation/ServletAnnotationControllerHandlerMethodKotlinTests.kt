@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.web.servlet.mvc.method.annotation
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -33,12 +34,19 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 
 	companion object {
 		@JvmStatic
-		fun pathPatternsArguments(): Stream<Boolean> {
+		private fun pathPatternsArguments(): Stream<Boolean> {
 			return Stream.of(true, false)
 		}
 	}
 
+	@Retention(AnnotationRetention.RUNTIME)
+	@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.annotation.ServletAnnotationControllerHandlerMethodKotlinTests#pathPatternsArguments")
+	private annotation class PathPatternsParameterizedArgumentsTest
+
+
+	@PathPatternsParameterizedArgumentsTest
 	fun dataClassBinding(usePathPatterns: Boolean) {
 		initDispatcherServlet(DataClassController::class.java, usePathPatterns)
 
@@ -50,7 +58,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("value1-2")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun dataClassBindingWithOptionalParameterAndAllParameters(usePathPatterns: Boolean) {
 		initDispatcherServlet(DataClassController::class.java, usePathPatterns)
 
@@ -62,7 +70,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("value1-2")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun dataClassBindingWithOptionalParameterAndOnlyMissingParameters(usePathPatterns: Boolean) {
 		initDispatcherServlet(DataClassController::class.java, usePathPatterns)
 
@@ -73,7 +81,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("value1-12")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun suspendingMethod(usePathPatterns: Boolean) {
 		initDispatcherServlet(CoroutinesController::class.java, usePathPatterns)
 
@@ -84,7 +92,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(WebAsyncUtils.getAsyncManager(request).concurrentResult).isEqualTo("foo")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun defaultValue(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 
@@ -94,7 +102,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("default")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun defaultValueOverridden(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 
@@ -105,7 +113,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("override")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun defaultValues(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 
@@ -115,7 +123,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("10-20")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun defaultValuesOverridden(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 
@@ -126,7 +134,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(response.contentAsString).isEqualTo("10-40")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun suspendingDefaultValue(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 
@@ -137,7 +145,7 @@ class ServletAnnotationControllerHandlerMethodKotlinTests : AbstractServletHandl
 		assertThat(WebAsyncUtils.getAsyncManager(request).concurrentResult).isEqualTo("default")
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	fun suspendingDefaultValueOverridden(usePathPatterns: Boolean) {
 		initDispatcherServlet(DefaultValueController::class.java, usePathPatterns)
 

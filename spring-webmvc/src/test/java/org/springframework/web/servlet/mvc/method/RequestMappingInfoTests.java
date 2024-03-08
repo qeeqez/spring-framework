@@ -16,6 +16,10 @@
 
 package org.springframework.web.servlet.mvc.method;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -23,6 +27,7 @@ import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -46,15 +51,21 @@ import static org.springframework.web.bind.annotation.RequestMethod.HEAD;
  */
 class RequestMappingInfoTests {
 
-	@SuppressWarnings("unused")
-	static Stream<RequestMappingInfo.Builder> pathPatternsArguments() {
+	private static Stream<RequestMappingInfo.Builder> pathPatternsArguments() {
 		RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 		config.setPathMatcher(new AntPathMatcher());
 		return Stream.of(RequestMappingInfo.paths(), RequestMappingInfo.paths().options(config));
 	}
 
-
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
 	@PathPatternsParameterizedTest
+	@MethodSource("org.springframework.web.servlet.mvc.method.RequestMappingInfoTests#pathPatternsArguments")
+	private @interface PathPatternsParameterizedArgumentsTest {
+	}
+
+
+	@PathPatternsParameterizedArgumentsTest
 	void createEmpty(RequestMappingInfo.Builder infoBuilder) {
 
 		// gh-22543
@@ -94,7 +105,7 @@ class RequestMappingInfoTests {
 		assertThat(info.getPatternsCondition()).isNull();
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void matchPatternsCondition(RequestMappingInfo.Builder builder) {
 
 		boolean useParsedPatterns = builder.build().getPathPatternsCondition() != null;
@@ -227,7 +238,7 @@ class RequestMappingInfoTests {
 		assertThat(list).containsExactly(headMethod, getMethod, noMethods);
 	}
 
-	@PathPatternsParameterizedTest
+	@PathPatternsParameterizedArgumentsTest
 	void equalsMethod(RequestMappingInfo.Builder infoBuilder) {
 		RequestMappingInfo info1 = infoBuilder.paths("/foo").methods(GET)
 				.params("foo=bar", "customFoo=customBar").headers("foo=bar")
