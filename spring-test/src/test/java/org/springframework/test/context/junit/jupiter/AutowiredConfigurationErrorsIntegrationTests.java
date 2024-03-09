@@ -65,13 +65,13 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@ParameterizedTest
 	@ValueSource(classes = {
-		StaticAutowiredBeforeAllMethod.class,
-		StaticAutowiredAfterAllMethod.class,
-		AutowiredBeforeEachMethod.class,
-		AutowiredAfterEachMethod.class,
-		AutowiredTestMethod.class,
-		AutowiredRepeatedTestMethod.class,
-		AutowiredParameterizedTestMethod.class
+		StaticAutowiredBeforeAllMethodTestCase.class,
+		StaticAutowiredAfterAllMethodTestCase.class,
+		AutowiredBeforeEachMethodTestCase.class,
+		AutowiredAfterEachMethodTestCase.class,
+		AutowiredTestMethodTestCase.class,
+		AutowiredRepeatedTestMethodTestCase.class,
+		AutowiredParameterizedTestMethodTestCase.class
 	})
 	void autowiredTestMethodsTestTemplateMethodsAndLifecycleMethods(Class<?> testClass) {
 		testEventsFor(testClass)
@@ -91,7 +91,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 	 */
 	@Test
 	void autowiredAndNonAutowiredTestMethods() {
-		testEventsFor(AutowiredAndNonAutowiredTestMethods.class)
+		testEventsFor(AutowiredAndNonAutowiredTestMethodsTestCase.class)
 			.assertStatistics(stats -> stats.started(2).succeeded(0).failed(2))
 			.assertThatEvents()
 				.haveExactly(1,
@@ -109,8 +109,8 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@ParameterizedTest
 	@ValueSource(classes = {
-		NonStaticAutowiredBeforeAllMethod.class,
-		NonStaticAutowiredAfterAllMethod.class
+		NonStaticAutowiredBeforeAllMethodTestCase.class,
+		NonStaticAutowiredAfterAllMethodTestCase.class
 	})
 	void autowiredNonStaticClassLevelLifecycleMethods(Class<?> testClass) {
 		containerEventsFor(testClass)
@@ -124,7 +124,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@Test
 	void autowiredTestFactoryMethod() {
-		containerEventsFor(AutowiredTestFactoryMethod.class)
+		containerEventsFor(AutowiredTestFactoryMethodTestCase.class)
 			.assertStatistics(stats -> stats.started(3).succeeded(2).failed(1))
 			.assertThatEvents().haveExactly(1,
 				event(container(),
@@ -154,7 +154,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class StaticAutowiredBeforeAllMethod {
+	static class StaticAutowiredBeforeAllMethodTestCase {
 
 		@Autowired
 		@BeforeAll
@@ -170,7 +170,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 	@SpringJUnitConfig(Config.class)
 	@TestInstance(PER_CLASS)
 	@FailingTestCase
-	static class NonStaticAutowiredBeforeAllMethod {
+	static class NonStaticAutowiredBeforeAllMethodTestCase {
 
 		@Autowired
 		@BeforeAll
@@ -185,7 +185,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class StaticAutowiredAfterAllMethod {
+	static class StaticAutowiredAfterAllMethodTestCase {
 
 		@Test
 		@DisplayName(DISPLAY_NAME)
@@ -201,7 +201,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 	@SpringJUnitConfig(Config.class)
 	@TestInstance(PER_CLASS)
 	@FailingTestCase
-	static class NonStaticAutowiredAfterAllMethod {
+	static class NonStaticAutowiredAfterAllMethodTestCase {
 
 		@Test
 		@DisplayName(DISPLAY_NAME)
@@ -216,7 +216,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredBeforeEachMethod {
+	static class AutowiredBeforeEachMethodTestCase {
 
 		@Autowired
 		@BeforeEach
@@ -231,7 +231,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredAfterEachMethod {
+	static class AutowiredAfterEachMethodTestCase {
 
 		@Test
 		@DisplayName(DISPLAY_NAME)
@@ -246,7 +246,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredTestMethod {
+	static class AutowiredTestMethodTestCase {
 
 		@Autowired
 		@Test
@@ -257,7 +257,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredAndNonAutowiredTestMethods {
+	static class AutowiredAndNonAutowiredTestMethodsTestCase {
 
 		@Autowired
 		@Test
@@ -271,7 +271,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredRepeatedTestMethod {
+	static class AutowiredRepeatedTestMethodTestCase {
 
 		@Autowired
 		@RepeatedTest(value = 1, name = DISPLAY_NAME)
@@ -281,7 +281,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredTestFactoryMethod {
+	static class AutowiredTestFactoryMethodTestCase {
 
 		@Autowired
 		@TestFactory
@@ -292,7 +292,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
 	@SpringJUnitConfig(Config.class)
 	@FailingTestCase
-	static class AutowiredParameterizedTestMethod {
+	static class AutowiredParameterizedTestMethodTestCase {
 
 		@Autowired
 		@ParameterizedTest(name = DISPLAY_NAME)
